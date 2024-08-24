@@ -1,8 +1,10 @@
 package main
 
 import (
-	"os"
 	"log"
+	"net/http"
+	"os"
+	"bytes"
 
 	"github.com/spf13/cobra"
 )
@@ -33,13 +35,31 @@ func main()  {
 // this function will take the path to the file path read it and send the contents as body to and endpoint 
 func generateImage(filepath string)  error {
 
-	content , err := os.ReadFile(filepath)
+	content , err := os.ReadFile(filepath) // Read contents from the file specified in the command
 
 	if err != nil {
 		log.Println("Cannot read file")
 	}
 
-	log.Println(string(content))
+	// create a new http request with apiURL 
+	req, err := http.NewRequest("POST","http://localhost:9000/generate" , bytes.NewReader(content))
+
+	if err != nil {
+		log.Printf("Request cannot be created %s", err.Error())
+	}
+
+	//Create a client to send request over http
+	client := &http.Client{}
+
+	resp, err := client.Do(req) //send the request over http
+
+	if err != nil {
+		log.Printf("Cannot send request over http %s", err.Error())
+	}
+
+	log.Print(resp.Status)
+	
+	//defer resp.Body.Close()
 
 	return nil
 	
