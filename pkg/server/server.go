@@ -5,6 +5,9 @@ import (
 	"net/http"
 
 	"github.com/frost/pkg/server/handlers"
+
+	"github.com/frost/pkg/database"
+	"github.com/frost/utils"
 )
 
 
@@ -24,9 +27,15 @@ func NewAPISERVER(addr string) *APISERVER  {
 
 func (s *APISERVER) Run() error {
 
+	db, err := database.Database()
+
+	utils.LogError(err, "Cannot connect to the database")
+
+	db.MustExec(database.GenerationTable)
+
 	router := http.NewServeMux()
 
-	router.HandleFunc("POST /generate", handlers.Request())
+	router.HandleFunc("POST /generate", handlers.GenerateTask(db))
 
 	server := http.Server{
 		Addr: s.addr,

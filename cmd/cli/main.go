@@ -65,3 +65,11 @@ func generateImage(filepath string)  error {
 	
 }
 
+/* 
+		Next steps 
+		1. Collect text from response body in a readable human form
+		2. Queue the generation process because It is not immediate
+		3. Once queued return an Id or something reference Alexis or claude
+		4. Design the creation process of puting text on canvas with text highlighting for different languages
+ */
+
