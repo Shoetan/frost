@@ -2,12 +2,18 @@ package utils
 
 import (
 	"encoding/json"
+	"image/color"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 
 	amqp "github.com/rabbitmq/amqp091-go"
+
+	"github.com/fogleman/gg"
+	"github.com/golang/freetype/truetype"
+	"golang.org/x/image/font/gofont/goregular"
 )
 
 type Task struct{
@@ -34,6 +40,45 @@ func LogError( err error, message string)  {
 		if err != nil  {
 			log.Printf( "%s : %v", message, err.Error())
 		}
+}
+
+
+
+func createImage(code string, outputPath string) error {
+
+	width , height := 600, 600
+
+	dc := gg.NewContext(width, height)
+
+	//Set background color 
+	dc.SetColor(color.RGBA{40,44,52,255})
+
+	dc.Clear()
+
+	//load a font
+
+	font, err := truetype.Parse(goregular.TTF)
+	LogError(err, "Could not load fonts")
+
+	//set font face
+	face := truetype.NewFace(font, &truetype.Options{Size: 16})
+	dc.SetFontFace(face)
+
+	//set text color
+	dc.SetColor(color.White)
+
+		// Draw the code
+		margin := 40.0
+		lineHeight := 1.5
+		y := margin
+		for _, line := range strings.Split(code, "\n") {
+			dc.DrawString(line, margin, y)
+			y += dc.FontHeight() * lineHeight
+		}
+	
+		// Save the image
+		return dc.SavePNG(outputPath)
+
 }
 
 
@@ -101,7 +146,7 @@ func Receivetask(conn *amqp.Connection){
 		msgs, err := channel.Consume(
 		queue.Name, // queue
 		"",     // consumer
-		true,   // auto-ack
+		false,   // auto-ack
 		false,  // exclusive
 		false,  // no-local
 		false,  // no-wait
@@ -117,10 +162,17 @@ func Receivetask(conn *amqp.Connection){
 			var task Task
 
 			err := json.Unmarshal(d.Body, &task)
+			LogError(err, "Could not unmarshal task")
 
-			LogError(err, "Could not unmarshall task")
+			log.Printf("Received a task: GenerationID: %s, Text: %s", task.GenerationId, task.Text)
 
-			log.Printf("Received a task: GenerationID=%s, Text=%s", task.GenerationId, task.Text)
+
+			//add the generation image code here 
+			err = createImage(string(task.Text), "worki.png")
+
+			LogError(err, "Image creation failed")
+
+			d.Ack(false)
 
 		}
 	}()

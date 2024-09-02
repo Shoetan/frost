@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"io"
+	// "log"
 	"net/http"
 
 	"github.com/frost/utils"
@@ -49,7 +50,6 @@ func GenerateTask(db *sqlx.DB, conn *amqp.Connection) http.HandlerFunc {
 
 
 		//Queue task into  redis or rabbitMQ
-
 		utils.PublishTask(conn,generationID, content)
 	
 	

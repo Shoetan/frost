@@ -57,7 +57,7 @@ func generateImage(filepath string)  error {
 		log.Printf("Cannot send request over http %s", err.Error())
 	}
 
-	log.Print(resp.Status)
+	log.Print(resp.StatusCode)
 	
 	//defer resp.Body.Close()
 
@@ -67,9 +67,9 @@ func generateImage(filepath string)  error {
 
 /* 
 		Next steps 
-		1. Collect text from response body in a readable human form
-		2. Queue the generation process because It is not immediate
-		3. Once queued return an Id or something reference Alexis or claude
+		1. Collect text from response body in a readable human form: Done
+		2. Queue the generation process because It is not immediate: Done
+		3. Once queued return an Id or something reference Alexis or claude: Done
 		4. Design the creation process of puting text on canvas with text highlighting for different languages
  */
 
